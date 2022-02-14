@@ -489,6 +489,8 @@ void Plane::set_mode(enum FlightMode mode, mode_reason_t reason)
     steerController.reset_I();    
 }
 
+
+
 // exit_mode - perform any cleanup required when leaving a flight mode
 void Plane::exit_mode(enum FlightMode mode)
 {
@@ -505,6 +507,157 @@ void Plane::exit_mode(enum FlightMode mode)
         }
         auto_state.started_flying_in_auto_ms = 0;
     }
+}
+
+void Plane::drop_parachute(){
+    //stop_camera_servo = true;                     // REBOOT AFTER THIS TYPE OF LANDING
+
+    //SRV_Channels::set_output_pwm_chan(5, 1900);   // they are counted from 0!!! so for real channel you should plus 1 to channel num
+    //ServoRelayEvents.do_set_servo(6,1900);
+    ServoRelayEvents.do_set_servo(10,1100);
+    ServoRelayEvents.do_set_servo(12,1900);
+    //SRV_Channels::set_output_pwm_chan(6, 1100);
+    //SRV_Channels::set_output_pwm_chan(9, 1000);
+
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "Parachute released");
+}
+
+void Plane::check_test_loop(){
+
+    Vector3f gyros = ins.get_gyro();
+    float rate = barometer.get_climb_rate();
+    float relative_alt = plane.relative_altitude;
+    
+    //test5
+    if (failsafe.state == FAILSAFE_GCS){
+        if (!gcs_to_auto_swithed){
+            plane.set_mode(AUTO,MODE_REASON_TX_COMMAND);
+            aparm.throttle_max.set(100);
+            aparm.throttle_min.set(2);
+            gcs_to_auto_swithed = true;
+        }
+    }
+    else{
+        gcs_to_auto_swithed = false;
+    }
+
+    //test2.1
+    if (control_mode == RTL && plane.nav_controller->reached_loiter_target() && relative_alt <= 20000*1.15 && failsafe.state == FAILSAFE_GCS){
+        drop_parachute();
+        //SRV_Channels::set_output_pwm_chan(5, 1900);
+        //SRV_Channels::set_output_pwm_chan(9, 1100);
+    }
+
+
+    //test 2.2
+    if (control_mode == RTL && plane.nav_controller->reached_loiter_target()){
+        if (secondTaskTimerActive){
+            const uint32_t now = AP_HAL::millis();
+            if (now - secondTaskStartTime > 15*60*1000){
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: DO OPERATION!!!");
+
+                AP_Mission::Mission_Command cmd;
+                cmd.content.speed.target_ms = 22;
+                plane.do_change_speed(cmd);
+
+                AP_Mission::Mission_Command cmd2;
+                cmd2.content.location.alt = 20000 * 1.15;
+                plane.do_continue_and_change_alt(cmd2);
+
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: RTL is active ");
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: Loiter target reached");
+                secondTaskTimerActive = false;
+            }
+        }
+        else
+        {
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: Started timer");
+            secondTaskTimerActive = true;
+            secondTaskStartTime = AP_HAL::millis();
+        }
+    }
+    else{
+        if (secondTaskTimerActive){
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: Timer finished, without action");
+        }
+        secondTaskTimerActive = false;
+    }
+
+    //test 3
+    if (relative_alt > 18000 && (rate <= -18 ||  abs(gyros.x) >= 1.745 || abs(gyros.y) >= 1.745 || abs(gyros.z) >= 1.745 )){
+        if (thirdTaskTimerActive){
+            const uint32_t now = AP_HAL::millis();
+            if (now - thirdTaskStartTime > 2000){
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: DO OPERATION!!!");
+
+                drop_parachute();
+                drop_parachute();
+
+                //drop_parachute();
+
+                //SRV_Channels::set_output_pwm_chan(5, 1900);
+                //SRV_Channels::set_output_pwm_chan(9, 1100);
+
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: relative_alt %f", relative_alt);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: climb rate %f", rate);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Gyro x %f", gyros.x);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Gyro y %f", gyros.y);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Gyro z %f", gyros.z);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Timer finished, action done!");
+                thirdTaskTimerActive = false;
+            }
+        }
+        else
+        {
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Started timer");
+            thirdTaskTimerActive = true;
+            thirdTaskStartTime = AP_HAL::millis();
+        }
+    }
+    else{
+        if (thirdTaskTimerActive){
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 3: Timer finished, without action");
+        }
+        thirdTaskTimerActive = false;
+    }
+
+
+    //test 4
+    if (relative_alt < 18000 && (rate <= -8 ||  abs(gyros.x) >= 1.745 || abs(gyros.y) >= 1.745 || abs(gyros.z) >= 1.745 )){
+        if (fourthTaskTimerActive){
+            const uint32_t now = AP_HAL::millis();
+            if (now - fourthTaskStartTime > 2000){
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: DO OPERATION!!!");
+
+                drop_parachute();
+                drop_parachute();
+
+                //SRV_Channels::set_output_pwm_chan(5, 1900);
+                //SRV_Channels::set_output_pwm_chan(9, 1100);
+
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4:relative_alt %f", relative_alt);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: climb rate %f", rate);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Gyro x %f", gyros.x);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Gyro y %f", gyros.y);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Gyro z %f", gyros.z);
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Timer finished, action done!");
+                fourthTaskTimerActive = false;
+            }
+        }
+        else
+        {
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Started timer");
+            fourthTaskTimerActive = true;
+            fourthTaskStartTime = AP_HAL::millis();
+        }
+    }
+    else{
+        if (fourthTaskTimerActive){
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "test 4: Timer finished, without action");
+        }
+        fourthTaskTimerActive = false;
+    }
+
 }
 
 void Plane::check_long_failsafe()

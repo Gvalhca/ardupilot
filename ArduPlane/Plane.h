@@ -158,6 +158,19 @@ public:
     void loop() override;
 
 private:
+    bool stop_camera_servo = false; 
+    void drop_parachute();
+
+    bool gcs_to_auto_swithed = false;
+
+    int fourthTaskTimerActive = false;
+    uint32_t fourthTaskStartTime;
+
+    int thirdTaskTimerActive = false;
+    uint32_t thirdTaskStartTime;
+
+    int secondTaskTimerActive = false;
+    uint32_t secondTaskStartTime;
 
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::FixedWing aparm;
@@ -923,6 +936,7 @@ private:
     void set_mode(enum FlightMode mode, mode_reason_t reason);
     void exit_mode(enum FlightMode mode);
     void check_long_failsafe();
+    void check_test_loop();
     void check_short_failsafe();
     void startup_INS_ground(void);
     void update_notify();
