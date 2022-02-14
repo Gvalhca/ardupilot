@@ -26,7 +26,7 @@ fi
 # (see https://launchpad.net/gcc-arm-embedded/)
 ARM_ROOT="gcc-arm-none-eabi-4_9-2015q3"
 ARM_TARBALL="$ARM_ROOT-20150921-linux.tar.bz2"
-ARM_TARBALL_URL="http://firmware.ardupilot.org/Tools/PX4-tools/$ARM_TARBALL"
+ARM_TARBALL_URL="http://firmware.ardupilot.org/Tools/PX4-tools/archived/$ARM_TARBALL"
 
 # Ardupilot Tools
 ARDUPILOT_TOOLS="Tools/autotest"
@@ -128,9 +128,12 @@ grep -Fxq "$exportline2" ~/.profile 2>/dev/null || {
 
 apt-cache search arm-none-eabi
 
-(
- cd $ARDUPILOT_ROOT
- git submodule init
- git submodule update
-)
+if [[ $SKIP_AP_GIT_CHECK -ne 1 ]]; then
+  if [ -d ".git" ]; then
+    heading "Update git submodules"
+    cd $ARDUPILOT_ROOT
+    git submodule update --init --recursive
+    echo "Done!"
+  fi
+fi
 echo "---------- $0 end ----------"
