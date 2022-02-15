@@ -60,6 +60,8 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AP_ICEngine, &plane.g2.ice_control, update, 10, 100),
     SCHED_TASK(compass_cal_update,     50,    50),
     SCHED_TASK(accel_cal_update,       10,    50),
+    SCHED_TASK(check_test_loop,         3,    400),
+
 #if OPTFLOW == ENABLED
     SCHED_TASK(update_optical_flow,    50,    50),
 #endif
