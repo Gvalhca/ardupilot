@@ -542,12 +542,41 @@ void Plane::check_test_loop(){
     }
 
     //test2.1
-    if (control_mode == RTL && plane.nav_controller->reached_loiter_target() && relative_alt <= 20000*1.15 && failsafe.state == FAILSAFE_GCS){
+    if (control_mode == RTL && plane.nav_controller->reached_loiter_target() && relative_alt <= 12000*1.15 && failsafe.state == FAILSAFE_GCS 
+    && airspeed.get_airspeed() <= 25){
         drop_parachute();
         //SRV_Channels::set_output_pwm_chan(5, 1900);
         //SRV_Channels::set_output_pwm_chan(9, 1100);
     }
 
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "LOOP");
+
+    Location h;
+    h.lat = plane.home.lat;
+    h.lng = plane.home.lng;
+   
+
+    if (  (1.15 * aparm.loiter_radius > get_distance(h, current_loc)) && 
+            (0.85 * aparm.loiter_radius > get_distance(h, current_loc))  ){
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "Loitec with cheat - TRUE");
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "Distance to home: %f",get_distance(h, current_loc));
+    }
+    else{
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "Distance to home: %f",get_distance(h, current_loc));
+    }   
+
+
+    //plane.update_loiter(aparm.loiter_radius);
+    
+    if (plane.reached_loiter_target()){
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "REACHED LOITER STATUS");
+    }
+
+    if (plane.nav_controller->reached_loiter_target()){
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "REACHED LOITER STATUS -> nav control ");
+    }
+
+    
 
     //test 2.2
     if (control_mode == RTL && plane.nav_controller->reached_loiter_target()){
@@ -561,7 +590,7 @@ void Plane::check_test_loop(){
                 plane.do_change_speed(cmd);
 
                 AP_Mission::Mission_Command cmd2;
-                cmd2.content.location.alt = 20000 * 1.15;
+                cmd2.content.location.alt = 12000;
                 plane.do_continue_and_change_alt(cmd2);
 
                 gcs().send_text(MAV_SEVERITY_CRITICAL, "test 2: RTL is active ");
