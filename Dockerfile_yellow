@@ -1,0 +1,13 @@
+FROM ubuntu:18.04
+   
+# Prerequisites
+RUN apt update && apt install -y curl git unzip xz-utils zip libglu1-mesa openjdk-8-jdk wget sudo neofetch
+
+# Set up new user
+#RUN adduser --password 123123123 --gecos '' developer
+RUN useradd --password 123123123 -m -s /bin/bash developer
+
+#USER developer
+RUN adduser developer sudo
+
+COPY . /usr/local/bin/app
