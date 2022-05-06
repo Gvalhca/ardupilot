@@ -177,6 +177,16 @@ private:
     int secondTaskTimerActive = false;
     uint32_t secondTaskStartTime;
 
+
+    uint32_t prev_rpm_time = 0;
+    float rpm_rate_hz =                        1.0f;
+    uint32_t prev_wind_time = 0;
+
+    uint32_t prev_sys_status_time = 0;
+
+    float sys_status_hz =                      1.0f;
+    float wind_hz =                            1.0f;
+
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::FixedWing aparm;
 

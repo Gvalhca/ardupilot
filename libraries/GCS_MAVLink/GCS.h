@@ -188,15 +188,12 @@ public:
     uint32_t prev_raw_imu_time = 0;
     uint32_t prev_rc_channels_time = 0;
     uint32_t prev_rc_channels_raw_time = 0;
-    uint32_t prev_rpm_time = 0;
     uint32_t prev_scaled_pressure_time = 0;
     uint32_t prev_sensor_offsets_time = 0;
     uint32_t prev_servo_output_raw_time = 0;
     uint32_t prev_system_time_time = 0;
-    uint32_t prev_sys_status_time = 0;
     uint32_t prev_vfr_hud_time = 0;
     uint32_t prev_vibration_time = 0;
-    uint32_t prev_wind_time = 0;
 
     float ahrs_rate_hz =                      -1.0f;
     float ahrs2_rate_hz =                     -1.0f;
@@ -216,15 +213,12 @@ public:
     float raw_imu_rate_hz =                    1.0f;
     float rc_channels_rate_hz =               -1.0f;
     float rc_channels_raw_rate_hz =           -1.0f;
-    float rpm_rate_hz =                        1.0f;
-    float rpm_scaled_pressure_hz =             1.0f;
+    float scaled_pressure_hz =                 1.0f;
     float sensor_offsets_rate_hz =             0.5f;
-    float rpm_servo_output_raw_hz =            1.0f;
-    float rpm_system_time_hz =                 1.0f;
-    float rpm_sys_status_hz =                  1.0f;
-    float rpm_vfr_hud_hz =                     1.0f;
-    float rpm_vibration_hz =                   1.0f;
-    float rpm_wind_hz =                        1.0f;
+    float servo_output_raw_hz =                1.0f;
+    float system_time_hz =                     1.0f;
+    float vfr_hud_hz =                         1.0f;
+    float vibration_hz =                       1.0f;
 
 
     bool send_distance_sensor() const;
