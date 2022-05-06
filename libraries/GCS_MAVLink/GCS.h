@@ -169,40 +169,78 @@ public:
     void send_battery_status(const AP_BattMonitor &battery,
                              const uint8_t instance) ;
     bool send_battery_status() ;
+
+    uint32_t prev_ahrs_time = 0;
+    uint32_t prev_ahrs2_time = 0;
+    uint32_t prev_ahrs3_time = 0;
+    uint32_t prev_attitude_time = 0;
+    uint32_t prev_battery2_time = 0;
     uint32_t prev_battery_status_time = 0;
-    float battery_status_rate_hz = 1.0f;
+    uint32_t prev_ekf_status_report_time = 0;
+    uint32_t prev_global_position_int_time = 0;
+    uint32_t prev_gps_raw_int_time = 0;
+    uint32_t prev_hwstatus_time = 0;
+    uint32_t prev_local_position_ned_time = 0;
+    uint32_t prev_meminfo_time = 0;
+    uint32_t prev_nav_controller_output_time = 0;
+    uint32_t prev_position_target_global_int_time = 0;
+    uint32_t prev_power_status_time = 0;
+    uint32_t prev_raw_imu_time = 0;
+    uint32_t prev_rc_channels_time = 0;
+    uint32_t prev_rc_channels_raw_time = 0;
+    uint32_t prev_rpm_time = 0;
+    uint32_t prev_scaled_pressure_time = 0;
+    uint32_t prev_sensor_offsets_time = 0;
+    uint32_t prev_servo_output_raw_time = 0;
+    uint32_t prev_system_time_time = 0;
+    uint32_t prev_sys_status_time = 0;
+    uint32_t prev_vfr_hud_time = 0;
+    uint32_t prev_vibration_time = 0;
+    uint32_t prev_wind_time = 0;
+
+    float ahrs_rate_hz =                      -1.0f;
+    float ahrs2_rate_hz =                     -1.0f;
+    float ahrs3_rate_hz =                      2.0f;
+    float attitude_rate_hz =                  -1.0f;    
+    float battery2_rate_hz =                   1.0f;
+    float battery_status_rate_hz =             1.0f;
+    float ekf_status_report_rate_hz =          1.0f;
+    float global_position_int_rate_hz =        1.0f;
+    float gps_raw_int_rate_hz =                1.0f;
+    float hwstatus_rate_hz =                   1.0f;
+    float local_position_ned_rate_hz =         1.0f;
+    float meminfo_rate_hz =                    1.0f;
+    float nav_controller_output_rate_hz =      1.0f;
+    float position_target_global_int_rate_hz = 1.0f;
+    float power_status_rate_hz =               1.0f;
+    float raw_imu_rate_hz =                    1.0f;
+    float rc_channels_rate_hz =               -1.0f;
+    float rc_channels_raw_rate_hz =           -1.0f;
+    float rpm_rate_hz =                        1.0f;
+    float rpm_scaled_pressure_hz =             1.0f;
+    float sensor_offsets_rate_hz =             0.5f;
+    float rpm_servo_output_raw_hz =            1.0f;
+    float rpm_system_time_hz =                 1.0f;
+    float rpm_sys_status_hz =                  1.0f;
+    float rpm_vfr_hud_hz =                     1.0f;
+    float rpm_vibration_hz =                   1.0f;
+    float rpm_wind_hz =                        1.0f;
+
 
     bool send_distance_sensor() const;
     void send_rangefinder_downward() const;
     bool send_proximity() const;
     void send_ahrs2();
-
-    uint32_t prev_ahrs2_time = 0;
-    float ahrs2_rate_hz = -1.0f;
-
-    uint32_t prev_ahrs3_time = 0;
-    float ahrs3_rate_hz = 2.0f;
    
     void send_system_time();
     void send_radio_in();
-    uint32_t prev_rc_channels_raw_time = 0;
-    float rc_channels_raw_rate_hz = -1.0f;
-
-    uint32_t prev_rc_channels_time = 0;
-    float rc_channels_rate_hz = -1.0f;
 
     void send_raw_imu();
     virtual void send_scaled_pressure3(); // allow sub to override this
     void send_scaled_pressure();
     void send_sensor_offsets();
-    uint32_t prev_sensor_offsets_time = 0;
-    float sensor_offsets_rate_hz = 0.5f;
-
     virtual void send_simstate() const;
     void send_ahrs();
-
-    uint32_t prev_ahrs_time = 0;
-    float ahrs_rate_hz = -1.0f;
 
     void send_battery2();
 #if AP_AHRS_NAVEKF_AVAILABLE
@@ -210,8 +248,6 @@ public:
 #endif
     virtual void send_attitude() const;
 
-    uint32_t prev_attitude_time = 0;
-    float attitude_rate_hz = -1.0f;
 
     void send_autopilot_version() const;
     void send_local_position() const;

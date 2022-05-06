@@ -366,7 +366,7 @@ void GCS_MAVLINK::send_ahrs2()
     if (ahrs.get_secondary_attitude(euler)) {
         uint32_t now = AP_HAL::millis();
         if (prev_ahrs2_time != 0){
-            if ((now - prev_ahrs2_time < 1) * 1000 / ahrs2_rate_hz){
+            if (((now - prev_ahrs2_time) < 1 * 1000 / ahrs2_rate_hz) || ahrs2_rate_hz == -1){
                 //return;
             }
             else{
@@ -3118,7 +3118,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         CHECK_PAYLOAD_SIZE(ATTITUDE);
         now = AP_HAL::millis();
         if (prev_attitude_time != 0){
-            if ((now - prev_attitude_time) * 1000 < 1 / attitude_rate_hz){
+            if (((now - prev_attitude_time) < 1 * 1000 / attitude_rate_hz) || attitude_rate_hz == -1){
                 //return;
                 break;
             }
@@ -3133,8 +3133,6 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
             send_attitude();
             break;
         }
-
-
         break;
 
     case MSG_NEXT_PARAM:
