@@ -3268,7 +3268,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     case MSG_EXTENDED_STATUS2:
         CHECK_PAYLOAD_SIZE(MEMINFO);
-        uint32_t now = AP_HAL::millis();
+        now = AP_HAL::millis();
         if (prev_meminfo_time != 0){
             if (((now - prev_meminfo_time) < 1 * 1000 / meminfo_rate_hz) || meminfo_rate_hz < 0){
                 //return;
@@ -3327,7 +3327,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     case MSG_LOCAL_POSITION:
         CHECK_PAYLOAD_SIZE(LOCAL_POSITION_NED);
-        uint32_t now = AP_HAL::millis();
+        now = AP_HAL::millis();
         if (prev_local_position_ned_time != 0){
             if (((now - prev_local_position_ned_time) < 1 * 1000 / local_position_ned_rate_hz) || local_position_ned_rate_hz < 0){
                 //return;
