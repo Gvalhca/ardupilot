@@ -206,7 +206,7 @@ void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
 
     uint32_t now = AP_HAL::millis();
     if (prev_battery_status_time != 0){
-        if (now - prev_battery_status_time < 1 / battery_status_rate_hz){
+        if ((now - prev_battery_status_time) * 1000 < 1 / battery_status_rate_hz){
             return;
         }
         else{
@@ -366,7 +366,7 @@ void GCS_MAVLINK::send_ahrs2()
     if (ahrs.get_secondary_attitude(euler)) {
         uint32_t now = AP_HAL::millis();
         if (prev_ahrs2_time != 0){
-            if (now - prev_ahrs2_time < 1 / ahrs2_rate_hz){
+            if ((now - prev_ahrs2_time < 1) * 1000 / ahrs2_rate_hz){
                 //return;
             }
             else{
@@ -401,7 +401,7 @@ void GCS_MAVLINK::send_ahrs2()
 
         uint32_t now = AP_HAL::millis();
         if (prev_ahrs3_time != 0){
-            if (now - prev_ahrs3_time < 1 / ahrs3_rate_hz){
+            if ((now - prev_ahrs3_time) * 1000 < 1 / ahrs3_rate_hz){
                 //return;
             }
             else{
@@ -1066,7 +1066,7 @@ void GCS_MAVLINK::send_radio_in()
         // for mavlink1 send RC_CHANNELS_RAW, for compatibility with OSD implementations
         uint32_t now = AP_HAL::millis();
         if (prev_rc_channels_raw_time != 0){
-            if (now - prev_rc_channels_raw_time < 1 / rc_channels_raw_rate_hz){
+            if ((now - prev_rc_channels_raw_time) * 1000 < 1 / rc_channels_raw_rate_hz){
                 //return;
             }
             else{
@@ -1111,7 +1111,7 @@ void GCS_MAVLINK::send_radio_in()
     }
     now = AP_HAL::millis();
     if (prev_rc_channels_time != 0){
-        if (now - prev_rc_channels_time < 1 / rc_channels_rate_hz){
+        if ((now - prev_rc_channels_time) * 1000 < 1 / rc_channels_rate_hz){
             //return;
         }
         else{
@@ -1325,7 +1325,7 @@ void GCS_MAVLINK::send_sensor_offsets()
 
     uint32_t now = AP_HAL::millis();
     if (prev_sensor_offsets_time != 0){
-        if (now - prev_sensor_offsets_time < 1 / sensor_offsets_rate_hz){
+        if ((now - prev_sensor_offsets_time) * 1000 < 1 / sensor_offsets_rate_hz){
             return;
         }
         else{
@@ -1364,7 +1364,7 @@ void GCS_MAVLINK::send_ahrs()
 
     uint32_t now = AP_HAL::millis();
     if (prev_ahrs_time != 0){
-        if (now - prev_ahrs_time < 1 / ahrs_rate_hz){
+        if ( (now - prev_ahrs_time) * 1000 < 1 / ahrs_rate_hz){
             //return;
         }
         else{
@@ -3118,7 +3118,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         CHECK_PAYLOAD_SIZE(ATTITUDE);
         now = AP_HAL::millis();
         if (prev_attitude_time != 0){
-            if (now - prev_attitude_time < 1 / attitude_rate_hz){
+            if ((now - prev_attitude_time) * 1000 < 1 / attitude_rate_hz){
                 //return;
                 break;
             }
