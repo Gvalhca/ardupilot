@@ -806,6 +806,10 @@ private:
     void update_sensor_status_flags(void);
     void send_extended_status1(mavlink_channel_t chan);
     void send_nav_controller_output(mavlink_channel_t chan);
+
+    float nav_controller_output_rate_hz =      1.0f;
+    uint32_t prev_nav_controller_output_time = 0;
+
     void send_servo_out(mavlink_channel_t chan);
     void send_wind(mavlink_channel_t chan);
     void send_pid_info(const mavlink_channel_t chan, const DataFlash_Class::PID_Info *pid_info, const uint8_t axis, const float achieved);
