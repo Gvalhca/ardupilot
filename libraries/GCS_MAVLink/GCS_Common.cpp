@@ -206,18 +206,12 @@ void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
 
     uint32_t now = AP_HAL::millis();
     if (prev_battery_status_time != 0){
-        if ((now - prev_battery_status_time) * 1000 < 1 / battery_status_rate_hz){
+        if (((now - prev_battery_status_time) < 1 * 1000 / battery_status_rate_hz) || battery_status_rate_hz < 0){
             return;
         }
         else{
             prev_battery_status_time = now;
-        }
-    }
-    else{
-        prev_battery_status_time = now;
-    }
-
-    mavlink_msg_battery_status_send(chan,
+                mavlink_msg_battery_status_send(chan,
                                     instance, // id
                                     MAV_BATTERY_FUNCTION_UNKNOWN, // function
                                     MAV_BATTERY_TYPE_UNKNOWN, // type
@@ -229,6 +223,25 @@ void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
                                     battery.capacity_remaining_pct(instance),
                                     0, // time remaining, seconds (not provided)
                                     MAV_BATTERY_CHARGE_STATE_UNDEFINED);
+        }
+    }
+    else{
+        prev_battery_status_time = now;
+            mavlink_msg_battery_status_send(chan,
+                                    instance, // id
+                                    MAV_BATTERY_FUNCTION_UNKNOWN, // function
+                                    MAV_BATTERY_TYPE_UNKNOWN, // type
+                                    got_temperature ? ((int16_t) (temp * 100)) : INT16_MAX, // temperature. INT16_MAX if unknown
+                                    battery.get_cell_voltages(instance).cells, // cell voltages
+                                    battery.has_current(instance) ? battery.current_amps(instance) * 100 : -1, // current in centiampere
+                                    battery.has_current(instance) ? battery.consumed_mah(instance) : -1,       // total consumed current in milliampere.hour
+                                    battery.has_consumed_energy(instance) ? battery.consumed_wh(instance) * 36 : -1, // consumed energy in hJ (hecto-Joules)
+                                    battery.capacity_remaining_pct(instance),
+                                    0, // time remaining, seconds (not provided)
+                                    MAV_BATTERY_CHARGE_STATE_UNDEFINED);
+    }
+
+
 }
 
 // returns true if all battery instances were reported
@@ -366,7 +379,7 @@ void GCS_MAVLINK::send_ahrs2()
     if (ahrs.get_secondary_attitude(euler)) {
         uint32_t now = AP_HAL::millis();
         if (prev_ahrs2_time != 0){
-            if (((now - prev_ahrs2_time) < 1 * 1000 / ahrs2_rate_hz) || ahrs2_rate_hz == -1){
+            if (((now - prev_ahrs2_time) < 1 * 1000 / ahrs2_rate_hz) || ahrs2_rate_hz < 0){
                 //return;
             }
             else{
@@ -401,7 +414,7 @@ void GCS_MAVLINK::send_ahrs2()
 
         uint32_t now = AP_HAL::millis();
         if (prev_ahrs3_time != 0){
-            if ((now - prev_ahrs3_time) * 1000 < 1 / ahrs3_rate_hz){
+            if (((now - prev_ahrs3_time) < 1 * 1000 / ahrs3_rate_hz) || ahrs3_rate_hz < 0){
                 //return;
             }
             else{
@@ -1364,7 +1377,7 @@ void GCS_MAVLINK::send_ahrs()
 
     uint32_t now = AP_HAL::millis();
     if (prev_ahrs_time != 0){
-        if ( (now - prev_ahrs_time) * 1000 < 1 / ahrs_rate_hz){
+        if (((now - prev_ahrs_time) < 1 * 1000 / ahrs_rate_hz) || ahrs_rate_hz < 0){
             //return;
         }
         else{
@@ -1391,8 +1404,7 @@ void GCS_MAVLINK::send_ahrs()
                             0,
                             ahrs.get_error_rp(),
                             ahrs.get_error_yaw());
-    }    
-
+    }
     
 }
 
@@ -1549,7 +1561,25 @@ void GCS_MAVLINK::send_battery2()
         } else {
             current = -1;
         }
+
+    uint32_t now = AP_HAL::millis();
+    if (prev_battery2_time != 0){
+        if (((now - prev_battery2_time) < 1 * 1000 / battery2_rate_hz) || battery2_rate_hz <0){
+            //return;
+        }
+        else{
+            prev_battery2_time = now;
+            mavlink_msg_battery2_send(chan, battery.voltage(1)*1000, current);
+        }
+    }
+    else{
+        prev_battery2_time = now;
         mavlink_msg_battery2_send(chan, battery.voltage(1)*1000, current);
+
+    }
+
+
+
     }
 }
 
@@ -1777,6 +1807,10 @@ void GCS_MAVLINK::send_ekf_origin() const
     if (!AP::ahrs().get_origin(ekf_origin)) {
         return;
     }
+
+
+
+
     mavlink_msg_gps_global_origin_send(
         chan,
         ekf_origin.lat,
@@ -3051,10 +3085,29 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
 
 void GCS_MAVLINK::send_hwstatus()
 {
-    mavlink_msg_hwstatus_send(
-        chan,
-        hal.analogin->board_voltage()*1000,
-        0);
+    uint32_t now = AP_HAL::millis();
+    if (prev_hwstatus_time != 0){
+        if (((now - prev_hwstatus_time) < 1 * 1000 / hwstatus_rate_hz) || hwstatus_rate_hz < 0){
+            //return;
+        }
+        else{
+            prev_hwstatus_time = now;
+            mavlink_msg_hwstatus_send(
+                chan,
+                hal.analogin->board_voltage()*1000,
+                0);
+        }
+    }
+    else{
+        prev_hwstatus_time = now;
+        mavlink_msg_hwstatus_send(
+            chan,
+            hal.analogin->board_voltage()*1000,
+            0);
+    }
+    
+
+
 }
 
 void GCS_MAVLINK::send_attitude() const
@@ -3090,17 +3143,45 @@ void GCS_MAVLINK::send_global_position_int()
     Vector3f vel;
     ahrs.get_velocity_NED(vel);
 
-    mavlink_msg_global_position_int_send(
-        chan,
-        AP_HAL::millis(),
-        global_position_current_loc.lat, // in 1E7 degrees
-        global_position_current_loc.lng, // in 1E7 degrees
-        global_position_int_alt(),       // millimeters above ground/sea level
-        global_position_int_relative_alt(), // millimeters above home
-        vel.x * 100,                     // X speed cm/s (+ve North)
-        vel.y * 100,                     // Y speed cm/s (+ve East)
-        vel.z * 100,                     // Z speed cm/s (+ve Down)
-        ahrs.yaw_sensor);                // compass heading in 1/100 degree
+    uint32_t now = AP_HAL::millis();
+    if (prev_global_position_int_time != 0){
+        if (((now - prev_global_position_int_time) < 1 * 1000 / global_position_int_rate_hz) || global_position_int_rate_hz < 0){
+            //return;
+        }
+        else{
+            prev_global_position_int_time = now;
+        mavlink_msg_global_position_int_send(
+            chan,
+            AP_HAL::millis(),
+            global_position_current_loc.lat, // in 1E7 degrees
+            global_position_current_loc.lng, // in 1E7 degrees
+            global_position_int_alt(),       // millimeters above ground/sea level
+            global_position_int_relative_alt(), // millimeters above home
+            vel.x * 100,                     // X speed cm/s (+ve North)
+            vel.y * 100,                     // Y speed cm/s (+ve East)
+            vel.z * 100,                     // Z speed cm/s (+ve Down)
+            ahrs.yaw_sensor);                // compass heading in 1/100 degree
+        }
+    }
+    else{
+        prev_global_position_int_time = now;
+        mavlink_msg_global_position_int_send(
+            chan,
+            AP_HAL::millis(),
+            global_position_current_loc.lat, // in 1E7 degrees
+            global_position_current_loc.lng, // in 1E7 degrees
+            global_position_int_alt(),       // millimeters above ground/sea level
+            global_position_int_relative_alt(), // millimeters above home
+            vel.x * 100,                     // X speed cm/s (+ve North)
+            vel.y * 100,                     // Y speed cm/s (+ve East)
+            vel.z * 100,                     // Z speed cm/s (+ve Down)
+            ahrs.yaw_sensor);                // compass heading in 1/100 degree
+    }
+    
+    
+
+
+
 }
 
 bool GCS_MAVLINK::try_send_message(const enum ap_message id)
@@ -3118,7 +3199,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         CHECK_PAYLOAD_SIZE(ATTITUDE);
         now = AP_HAL::millis();
         if (prev_attitude_time != 0){
-            if (((now - prev_attitude_time) < 1 * 1000 / attitude_rate_hz) || attitude_rate_hz == -1){
+            if (((now - prev_attitude_time) < 1 * 1000 / attitude_rate_hz) || attitude_rate_hz <0){
                 //return;
                 break;
             }
@@ -3187,7 +3268,21 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     case MSG_EXTENDED_STATUS2:
         CHECK_PAYLOAD_SIZE(MEMINFO);
-        send_meminfo();
+        uint32_t now = AP_HAL::millis();
+        if (prev_meminfo_time != 0){
+            if (((now - prev_meminfo_time) < 1 * 1000 / meminfo_rate_hz) || meminfo_rate_hz < 0){
+                //return;
+            }
+            else{
+                prev_meminfo_time = now;
+                send_meminfo();
+            }
+        }
+        else{
+            prev_meminfo_time = now;
+            send_meminfo();
+        }
+    
         ret = true;
         break;
 
@@ -3232,7 +3327,22 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     case MSG_LOCAL_POSITION:
         CHECK_PAYLOAD_SIZE(LOCAL_POSITION_NED);
-        send_local_position();
+        uint32_t now = AP_HAL::millis();
+        if (prev_local_position_ned_time != 0){
+            if (((now - prev_local_position_ned_time) < 1 * 1000 / local_position_ned_rate_hz) || local_position_ned_rate_hz < 0){
+                //return;
+            }
+            else{
+                prev_local_position_ned_time = now;
+                send_local_position();
+            }
+        }
+        else{
+            prev_local_position_ned_time = now;
+            send_local_position();
+
+        }
+
         break;
 
     case MSG_POSITION_TARGET_GLOBAL_INT:

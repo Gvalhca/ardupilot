@@ -1421,28 +1421,63 @@ bool AP_AHRS_NavEKF::resetHeightDatum(void)
 }
 
 // send a EKF_STATUS_REPORT for current EKF
-void AP_AHRS_NavEKF::send_ekf_status_report(mavlink_channel_t chan) const
+void AP_AHRS_NavEKF::send_ekf_status_report(mavlink_channel_t chan) 
 {
-    switch (ekf_type()) {
-    case EKF_TYPE_NONE:
-        // send zero status report
-        mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
-        break;
+    uint32_t now = AP_HAL::millis();
+    if (prev_ekf_status_report_time != 0){
+        if (((now - prev_ekf_status_report_time) < 1 * 1000 / ekf_status_report_rate_hz) || ekf_status_report_rate_hz < 0){
+            //return;
+        }
+        else{
+            prev_ekf_status_report_time = now;
+            switch (ekf_type()) {
+            case EKF_TYPE_NONE:
+                // send zero status report
+                mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
+                break;
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    case EKF_TYPE_SITL:
-        // send zero status report
-        mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
-        break;
-#endif
-        
-    case EKF_TYPE2:
-        return EKF2.send_status_report(chan);
+                #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+                    case EKF_TYPE_SITL:
+                        // send zero status report
+                        mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
+                        break;
+                #endif
+                        
+                    case EKF_TYPE2:
+                        return EKF2.send_status_report(chan);
 
-    case EKF_TYPE3:
-        return EKF3.send_status_report(chan);
+                    case EKF_TYPE3:
+                        return EKF3.send_status_report(chan);
 
+                    }
+                }
     }
+    else{
+        prev_ekf_status_report_time = now;
+        switch (ekf_type()) {
+        case EKF_TYPE_NONE:
+            // send zero status report
+            mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
+            break;
+
+        #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+            case EKF_TYPE_SITL:
+                // send zero status report
+                mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
+                break;
+        #endif
+            
+        case EKF_TYPE2:
+            return EKF2.send_status_report(chan);
+
+        case EKF_TYPE3:
+            return EKF3.send_status_report(chan);
+
+        }
+    }
+
+
+
 }
 
 // passes a reference to the location of the inertial navigation origin

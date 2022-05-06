@@ -181,23 +181,48 @@ void Plane::send_extended_status1(mavlink_channel_t chan)
 
 void Plane::send_nav_controller_output(mavlink_channel_t chan)
 {
-    mavlink_msg_nav_controller_output_send(
-        chan,
-        nav_roll_cd * 0.01f,
-        nav_pitch_cd * 0.01f,
-        nav_controller->nav_bearing_cd() * 0.01f,
-        nav_controller->target_bearing_cd() * 0.01f,
-        MIN(auto_state.wp_distance, UINT16_MAX),
-        altitude_error_cm * 0.01f,
-        airspeed_error * 100,
-        nav_controller->crosstrack_error());
+    uint32_t now = AP_HAL::millis();
+        if (prev_nav_controller_output_time != 0){
+            if (((now - prev_nav_controller_output_time) < 1 * 1000 / nav_controller_output_rate_hz) || nav_controller_output_rate_hz < 0){
+                //return;
+            }
+            else{
+                prev_nav_controller_output_time = now;
+                mavlink_msg_nav_controller_output_send(
+                    chan,
+                    nav_roll_cd * 0.01f,
+                    nav_pitch_cd * 0.01f,
+                    nav_controller->nav_bearing_cd() * 0.01f,
+                    nav_controller->target_bearing_cd() * 0.01f,
+                    MIN(auto_state.wp_distance, UINT16_MAX),
+                    altitude_error_cm * 0.01f,
+                    airspeed_error * 100,
+                    nav_controller->crosstrack_error());
+            }
+        }
+        else{
+            prev_nav_controller_output_time = now;
+            mavlink_msg_nav_controller_output_send(
+            chan,
+            nav_roll_cd * 0.01f,
+            nav_pitch_cd * 0.01f,
+            nav_controller->nav_bearing_cd() * 0.01f,
+            nav_controller->target_bearing_cd() * 0.01f,
+            MIN(auto_state.wp_distance, UINT16_MAX),
+            altitude_error_cm * 0.01f,
+            airspeed_error * 100,
+            nav_controller->crosstrack_error());
+        }
+
+
+
 }
 
 void GCS_MAVLINK_Plane::send_position_target_global_int()
 {
     uint32_t now = AP_HAL::millis();
     if (prev_position_target_global_int_time != 0){
-        if (now - prev_position_target_global_int_time < 1 / position_target_global_int_rate_hz){
+        if ((now - prev_position_target_global_int_time) * 1000 < 1 / position_target_global_int_rate_hz){
             return;
         }
         else{
