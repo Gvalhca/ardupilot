@@ -195,7 +195,7 @@ void GCS_MAVLINK::send_power_status(void)
 }
 
 void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
-                                      const uint8_t instance) const
+                                      const uint8_t instance) 
 {
     // catch the battery backend not supporting the required number of cells
     static_assert(sizeof(AP_BattMonitor::cells) >= (sizeof(uint16_t) * MAVLINK_MSG_BATTERY_STATUS_FIELD_VOLTAGES_LEN),
@@ -203,6 +203,20 @@ void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
 
     float temp;
     bool got_temperature = battery.get_temperature(temp, instance);
+
+    uint32_t now = AP_HAL::millis();
+    if (prev_battery_status_time != 0){
+        if (now - prev_battery_status_time < 1 / battery_status_rate_hz){
+            return;
+        }
+        else{
+            prev_battery_status_time = now;
+        }
+    }
+    else{
+        prev_battery_status_time = now;
+    }
+
     mavlink_msg_battery_status_send(chan,
                                     instance, // id
                                     MAV_BATTERY_FUNCTION_UNKNOWN, // function
@@ -218,7 +232,7 @@ void GCS_MAVLINK::send_battery_status(const AP_BattMonitor &battery,
 }
 
 // returns true if all battery instances were reported
-bool GCS_MAVLINK::send_battery_status() const
+bool GCS_MAVLINK::send_battery_status() 
 {
     const AP_BattMonitor &battery = AP::battery();
 
@@ -350,13 +364,33 @@ void GCS_MAVLINK::send_ahrs2()
     Vector3f euler;
     struct Location loc {};
     if (ahrs.get_secondary_attitude(euler)) {
-        mavlink_msg_ahrs2_send(chan,
+        uint32_t now = AP_HAL::millis();
+        if (prev_ahrs2_time != 0){
+            if (now - prev_ahrs2_time < 1 / ahrs2_rate_hz){
+                //return;
+            }
+            else{
+                prev_ahrs2_time = now;
+                mavlink_msg_ahrs2_send(chan,
                                euler.x,
                                euler.y,
                                euler.z,
                                loc.alt*1.0e-2f,
                                loc.lat,
                                loc.lng);
+            }
+        }
+        else{
+            prev_ahrs2_time = now;
+            mavlink_msg_ahrs2_send(chan,
+                               euler.x,
+                               euler.y,
+                               euler.z,
+                               loc.alt*1.0e-2f,
+                               loc.lat,
+                               loc.lng);
+        }    
+        
     }
     const AP_AHRS_NavEKF &_ahrs = reinterpret_cast<const AP_AHRS_NavEKF&>(ahrs);
     const NavEKF2 &ekf2 = _ahrs.get_NavEKF2_const();
@@ -364,7 +398,15 @@ void GCS_MAVLINK::send_ahrs2()
         HAVE_PAYLOAD_SPACE(chan, AHRS3)) {
         ekf2.getLLH(loc);
         ekf2.getEulerAngles(-1,euler);
-        mavlink_msg_ahrs3_send(chan,
+
+        uint32_t now = AP_HAL::millis();
+        if (prev_ahrs3_time != 0){
+            if (now - prev_ahrs3_time < 1 / ahrs3_rate_hz){
+                //return;
+            }
+            else{
+                prev_ahrs3_time = now;
+                mavlink_msg_ahrs3_send(chan,
                                euler.x,
                                euler.y,
                                euler.z,
@@ -372,6 +414,21 @@ void GCS_MAVLINK::send_ahrs2()
                                loc.lat,
                                loc.lng,
                                0, 0, 0, 0);
+            }
+        }
+        else{
+            prev_ahrs3_time = now;
+            mavlink_msg_ahrs3_send(chan,
+                               euler.x,
+                               euler.y,
+                               euler.z,
+                               loc.alt*1.0e-2f,
+                               loc.lat,
+                               loc.lng,
+                               0, 0, 0, 0);
+        }    
+
+        
     }
 #endif
 }
@@ -1007,25 +1064,86 @@ void GCS_MAVLINK::send_radio_in()
 
     if (status && (status->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1)) {
         // for mavlink1 send RC_CHANNELS_RAW, for compatibility with OSD implementations
-        mavlink_msg_rc_channels_raw_send(
-            chan,
-            now,
-            0,
-            values[0],
-            values[1],
-            values[2],
-            values[3],
-            values[4],
-            values[5],
-            values[6],
-            values[7],
-            receiver_rssi);
+        uint32_t now = AP_HAL::millis();
+        if (prev_rc_channels_raw_time != 0){
+            if (now - prev_rc_channels_raw_time < 1 / rc_channels_raw_rate_hz){
+                //return;
+            }
+            else{
+                prev_rc_channels_raw_time = now;
+                mavlink_msg_rc_channels_raw_send(
+                    chan,
+                    now,
+                    0,
+                    values[0],
+                    values[1],
+                    values[2],
+                    values[3],
+                    values[4],
+                    values[5],
+                    values[6],
+                    values[7],
+                    receiver_rssi);
+            }
+        }
+        else{
+            prev_rc_channels_raw_time = now;
+            mavlink_msg_rc_channels_raw_send(
+                    chan,
+                    now,
+                    0,
+                    values[0],
+                    values[1],
+                    values[2],
+                    values[3],
+                    values[4],
+                    values[5],
+                    values[6],
+                    values[7],
+                    receiver_rssi);
+        }
+        
+        
     }
     if (!HAVE_PAYLOAD_SPACE(chan, RC_CHANNELS)) {
         // can't fit RC_CHANNELS
         return;
     }
-    mavlink_msg_rc_channels_send(
+    now = AP_HAL::millis();
+    if (prev_rc_channels_time != 0){
+        if (now - prev_rc_channels_time < 1 / rc_channels_rate_hz){
+            //return;
+        }
+        else{
+            prev_rc_channels_time = now;
+            mavlink_msg_rc_channels_send(
+                chan,
+                now,
+                RC_Channels::get_valid_channel_count(),
+                values[0],
+                values[1],
+                values[2],
+                values[3],
+                values[4],
+                values[5],
+                values[6],
+                values[7],
+                values[8],
+                values[9],
+                values[10],
+                values[11],
+                values[12],
+                values[13],
+                values[14],
+                values[15],
+                values[16],
+                values[17],
+                receiver_rssi); 
+        }
+    }
+    else{
+        prev_rc_channels_time = now;
+        mavlink_msg_rc_channels_send(
         chan,
         now,
         RC_Channels::get_valid_channel_count(),
@@ -1047,7 +1165,10 @@ void GCS_MAVLINK::send_radio_in()
         values[15],
         values[16],
         values[17],
-        receiver_rssi);        
+        receiver_rssi); 
+    }
+
+           
 }
 
 void GCS_MAVLINK::send_raw_imu()
@@ -1190,6 +1311,7 @@ void GCS_MAVLINK::send_scaled_pressure()
 
 void GCS_MAVLINK::send_sensor_offsets()
 {
+
     const AP_InertialSensor &ins = AP::ins();
     const Compass &compass = AP::compass();
 
@@ -1200,6 +1322,19 @@ void GCS_MAVLINK::send_sensor_offsets()
         return;
     }
     counter = 0;
+
+    uint32_t now = AP_HAL::millis();
+    if (prev_sensor_offsets_time != 0){
+        if (now - prev_sensor_offsets_time < 1 / sensor_offsets_rate_hz){
+            return;
+        }
+        else{
+            prev_sensor_offsets_time = now;
+        }
+    }
+    else{
+        prev_sensor_offsets_time = now;
+    }
 
     const Vector3f &mag_offsets = compass.get_offsets(0);
     const Vector3f &accel_offsets = ins.get_accel_offsets(0);
@@ -1226,15 +1361,39 @@ void GCS_MAVLINK::send_ahrs()
 {
     const AP_AHRS &ahrs = AP::ahrs();
     const Vector3f &omega_I = ahrs.get_gyro_drift();
-    mavlink_msg_ahrs_send(
-        chan,
-        omega_I.x,
-        omega_I.y,
-        omega_I.z,
-        0,
-        0,
-        ahrs.get_error_rp(),
-        ahrs.get_error_yaw());
+
+    uint32_t now = AP_HAL::millis();
+    if (prev_ahrs_time != 0){
+        if (now - prev_ahrs_time < 1 / ahrs_rate_hz){
+            //return;
+        }
+        else{
+            prev_ahrs_time = now;
+            mavlink_msg_ahrs_send(
+                            chan,
+                            omega_I.x,
+                            omega_I.y,
+                            omega_I.z,
+                            0,
+                            0,
+                            ahrs.get_error_rp(),
+                            ahrs.get_error_yaw());
+        }
+    }
+    else{
+        prev_ahrs_time = now;
+        mavlink_msg_ahrs_send(
+                            chan,
+                            omega_I.x,
+                            omega_I.y,
+                            omega_I.z,
+                            0,
+                            0,
+                            ahrs.get_error_rp(),
+                            ahrs.get_error_yaw());
+    }    
+
+    
 }
 
 /*
@@ -2951,12 +3110,31 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
     }
 
     bool ret = true;
+    uint32_t now = AP_HAL::millis();
 
     switch(id) {
 
     case MSG_ATTITUDE:
         CHECK_PAYLOAD_SIZE(ATTITUDE);
-        send_attitude();
+        now = AP_HAL::millis();
+        if (prev_attitude_time != 0){
+            if (now - prev_attitude_time < 1 / attitude_rate_hz){
+                //return;
+                break;
+            }
+            else{
+                prev_attitude_time = now;
+                send_attitude();
+                break;
+            }
+        }
+        else{
+            prev_attitude_time = now;
+            send_attitude();
+            break;
+        }
+
+
         break;
 
     case MSG_NEXT_PARAM:

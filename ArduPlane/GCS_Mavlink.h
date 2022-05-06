@@ -35,10 +35,13 @@ protected:
     MAV_RESULT handle_command_long_packet(const mavlink_command_long_t &packet) override;
 
     void send_position_target_global_int() override;
+    uint32_t prev_position_target_global_int_time = 0;
+    float position_target_global_int_rate_hz = 1.0f;
 
     virtual bool in_hil_mode() const override;
 
     void send_attitude() const override;
+
     void send_simstate() const override;
 
     bool persist_streamrates() const override { return true; }

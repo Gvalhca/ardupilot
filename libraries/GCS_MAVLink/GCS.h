@@ -167,25 +167,52 @@ public:
     void send_meminfo(void);
     void send_power_status(void);
     void send_battery_status(const AP_BattMonitor &battery,
-                             const uint8_t instance) const;
-    bool send_battery_status() const;
+                             const uint8_t instance) ;
+    bool send_battery_status() ;
+    uint32_t prev_battery_status_time = 0;
+    float battery_status_rate_hz = 1.0f;
+
     bool send_distance_sensor() const;
     void send_rangefinder_downward() const;
     bool send_proximity() const;
     void send_ahrs2();
+
+    uint32_t prev_ahrs2_time = 0;
+    float ahrs2_rate_hz = -1.0f;
+
+    uint32_t prev_ahrs3_time = 0;
+    float ahrs3_rate_hz = 2.0f;
+   
     void send_system_time();
     void send_radio_in();
+    uint32_t prev_rc_channels_raw_time = 0;
+    float rc_channels_raw_rate_hz = -1.0f;
+
+    uint32_t prev_rc_channels_time = 0;
+    float rc_channels_rate_hz = -1.0f;
+
     void send_raw_imu();
     virtual void send_scaled_pressure3(); // allow sub to override this
     void send_scaled_pressure();
     void send_sensor_offsets();
+    uint32_t prev_sensor_offsets_time = 0;
+    float sensor_offsets_rate_hz = 0.5f;
+
     virtual void send_simstate() const;
     void send_ahrs();
+
+    uint32_t prev_ahrs_time = 0;
+    float ahrs_rate_hz = -1.0f;
+
     void send_battery2();
 #if AP_AHRS_NAVEKF_AVAILABLE
     void send_opticalflow(const OpticalFlow &optflow);
 #endif
     virtual void send_attitude() const;
+
+    uint32_t prev_attitude_time = 0;
+    float attitude_rate_hz = -1.0f;
+
     void send_autopilot_version() const;
     void send_local_position() const;
     void send_vfr_hud();

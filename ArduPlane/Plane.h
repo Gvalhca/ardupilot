@@ -158,6 +158,11 @@ public:
     void loop() override;
 
 private:
+    bool ourFailsafe = false;
+    bool ourFailsafeWas = false;
+    bool hadRTL = false;
+    bool newTargetAirspeedAndAltSet = false;
+
     bool stop_camera_servo = false; 
     void drop_parachute();
 

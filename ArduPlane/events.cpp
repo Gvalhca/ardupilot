@@ -50,6 +50,7 @@ void Plane::failsafe_short_on_event(enum failsafe_state fstype, mode_reason_t re
 
     case CIRCLE:
     case RTL:
+        gcs().send_text(MAV_SEVERITY_INFO, "Flight mode = %u", (unsigned)control_mode);
     case QLAND:
     case QRTL:
     default:
@@ -60,11 +61,15 @@ void Plane::failsafe_short_on_event(enum failsafe_state fstype, mode_reason_t re
 
 void Plane::failsafe_long_on_event(enum failsafe_state fstype, mode_reason_t reason)
 {
+
     // This is how to handle a long loss of control signal failsafe.
     gcs().send_text(MAV_SEVERITY_WARNING, "Failsafe. Long event on: type=%u/reason=%u", fstype, reason);
     //  If the GCS is locked up we allow control to revert to RC
     RC_Channels::clear_overrides();
     failsafe.state = fstype;
+    if (failsafe.state == FAILSAFE_GCS){
+        ourFailsafe = true;
+    }
     switch(control_mode)
     {
     case MANUAL:
@@ -134,6 +139,7 @@ void Plane::failsafe_short_off_event(mode_reason_t reason)
 void Plane::failsafe_long_off_event(mode_reason_t reason)
 {
     // We're back in radio contact
+    ourFailsafe = false;
     gcs().send_text(MAV_SEVERITY_WARNING, "Failsafe. Long event off: reason=%u", reason);
     failsafe.state = FAILSAFE_NONE;
 }

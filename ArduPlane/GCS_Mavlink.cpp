@@ -124,6 +124,7 @@ void GCS_MAVLINK_Plane::send_attitude() const
     }
     
     const Vector3f &omega = ahrs.get_gyro();
+
     mavlink_msg_attitude_send(
         chan,
         millis(),
@@ -194,6 +195,19 @@ void Plane::send_nav_controller_output(mavlink_channel_t chan)
 
 void GCS_MAVLINK_Plane::send_position_target_global_int()
 {
+    uint32_t now = AP_HAL::millis();
+    if (prev_position_target_global_int_time != 0){
+        if (now - prev_position_target_global_int_time < 1 / position_target_global_int_rate_hz){
+            return;
+        }
+        else{
+            prev_position_target_global_int_time = now;
+        }
+    }
+    else{
+        prev_position_target_global_int_time = now;
+    }
+    
     if (plane.control_mode == MANUAL) {
         return;
     }

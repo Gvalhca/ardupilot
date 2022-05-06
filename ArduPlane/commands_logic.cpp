@@ -120,6 +120,13 @@ bool Plane::start_command(const AP_Mission::Mission_Command& cmd)
 
     case MAV_CMD_DO_SET_SERVO:
         ServoRelayEvents.do_set_servo(cmd.content.servo.channel, cmd.content.servo.pwm);
+        /*if (!stop_camera_servo || cmd.content.servo.channel != 7){
+            ServoRelayEvents.do_set_servo(cmd.content.servo.channel, cmd.content.servo.pwm);
+        }
+        else{
+                gcs().send_text(MAV_SEVERITY_CRITICAL, "set servo to 7 rejected");
+
+        }*/
         break;
 
     case MAV_CMD_DO_SET_RELAY:
