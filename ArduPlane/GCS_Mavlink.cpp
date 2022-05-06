@@ -180,19 +180,6 @@ void Plane::send_extended_status1(mavlink_channel_t chan) {
         0, 0, 0, 0);
 }
 
-<<<<<<< HEAD
-void Plane::send_nav_controller_output(mavlink_channel_t chan) {
-    mavlink_msg_nav_controller_output_send(
-        chan,
-        nav_roll_cd * 0.01f,
-        nav_pitch_cd * 0.01f,
-        nav_controller->nav_bearing_cd() * 0.01f,
-        nav_controller->target_bearing_cd() * 0.01f,
-        MIN(auto_state.wp_distance, UINT16_MAX),
-        altitude_error_cm * 0.01f,
-        airspeed_error * 100,
-        nav_controller->crosstrack_error());
-=======
 void Plane::send_nav_controller_output(mavlink_channel_t chan)
 {
     uint32_t now = AP_HAL::millis();
@@ -227,21 +214,12 @@ void Plane::send_nav_controller_output(mavlink_channel_t chan)
             airspeed_error * 100,
             nav_controller->crosstrack_error());
         }
-
-
-
->>>>>>> f5b12fb3a95fcf5e8219955b341251041287759d
 }
 
 void GCS_MAVLINK_Plane::send_position_target_global_int() {
     uint32_t now = AP_HAL::millis();
-<<<<<<< HEAD
     if (prev_position_target_global_int_time != 0) {
         if (((now - prev_position_target_global_int_time) < 1 * 1000 / position_target_global_int_rate_hz) || position_target_global_int_rate_hz < 0) {
-=======
-    if (prev_position_target_global_int_time != 0){
-        if ((now - prev_position_target_global_int_time) * 1000 < 1 / position_target_global_int_rate_hz){
->>>>>>> f5b12fb3a95fcf5e8219955b341251041287759d
             return;
         } else {
             prev_position_target_global_int_time = now;
