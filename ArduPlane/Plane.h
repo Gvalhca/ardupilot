@@ -179,13 +179,12 @@ private:
 
 
     uint32_t prev_rpm_time = 0;
-    float rpm_rate_hz =                        1.0f;
+    uint32_t prev_sys_status_time = 0;
     uint32_t prev_wind_time = 0;
 
-    uint32_t prev_sys_status_time = 0;
-
-    float sys_status_hz =                      1.0f;
-    float wind_hz =                            1.0f;
+    float rpm_rate_hz =                        1.5f;
+    float sys_status_hz =                      0.5f;
+    float wind_hz =                            0.5f;
 
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::FixedWing aparm;
@@ -807,7 +806,7 @@ private:
     void send_extended_status1(mavlink_channel_t chan);
     void send_nav_controller_output(mavlink_channel_t chan);
 
-    float nav_controller_output_rate_hz =      1.0f;
+    float nav_controller_output_rate_hz =      0.5f;
     uint32_t prev_nav_controller_output_time = 0;
 
     void send_servo_out(mavlink_channel_t chan);

@@ -36,7 +36,7 @@ protected:
 
     void send_position_target_global_int() override;
     uint32_t prev_position_target_global_int_time = 0;
-    float position_target_global_int_rate_hz = 1.0f;
+    float position_target_global_int_rate_hz = 0.5f;
 
     virtual bool in_hil_mode() const override;
 
