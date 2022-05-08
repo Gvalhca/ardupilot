@@ -725,6 +725,52 @@ void Plane::check_test_loop(){
     // gcs().send_text(MAV_SEVERITY_CRITICAL, "----------------------------------");
 }
 
+void Plane::startEngineCheck(){
+    engineCheckActive = true;
+    engineCheckStartTime = 0;
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test started");
+}
+
+void Plane::stopEngineCheck(){
+    engineCheckActive = false;
+    engineCheckStartTime = 0;
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test stopped");
+}
+
+void Plane::engineCheck(){
+    if (engineCheckActive){
+        uint32_t now = AP_HAL::millis();
+        if (engineCheckStartTime == 0){
+            engineCheckStartTime = now;
+        }
+        uint32_t timeDiff = (now - engineCheckStartTime) / 1000; // diff with now in sec
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "Time diff %f", (float) timeDiff);
+        if (timeDiff < 60 ){
+            SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
+            int trim = chan3->get_trim();
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 1. Set throttle - %f", (float) trim);
+        }
+        if (60 < timeDiff && timeDiff < 120){
+            SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
+            int max = chan3->get_output_max();
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 2. Set throttle - %f", (float) max);
+        }
+        if (120 < timeDiff && timeDiff < 210){
+            SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
+            int min = chan3->get_trim();
+            int max = chan3->get_output_max();
+
+            float d = (now - engineCheckStartTime) / 1000 / 14;
+            float value = sinf(d) * (max - min) / 2 + (min + max) / 2;
+
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 3. Set throttle - %f", (float) value);
+        }
+        if (timeDiff > 210){
+            stopEngineCheck();
+        }
+    }
+}
+
 void Plane::check_long_failsafe()
 {
     uint32_t tnow = millis();

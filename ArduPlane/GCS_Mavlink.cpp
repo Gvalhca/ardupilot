@@ -1124,7 +1124,11 @@ MAV_RESULT GCS_MAVLINK_Plane::handle_command_long_packet(const mavlink_command_l
                 return MAV_RESULT_FAILED;
             }
             return MAV_RESULT_ACCEPTED;
-
+        case 666:
+            plane.startEngineCheck();
+            break;
+        case 667:
+            plane.stopEngineCheck();
         default:
             return GCS_MAVLINK::handle_command_long_packet(packet);
     }

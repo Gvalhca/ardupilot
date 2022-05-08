@@ -2881,7 +2881,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_long_packet(const mavlink_command_long_t 
 
         case MAV_CMD_DO_FLIGHTTERMINATION:
             result = handle_flight_termination(packet);
-            break;
+            break;  
 
         default:
             result = MAV_RESULT_UNSUPPORTED;

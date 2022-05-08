@@ -955,6 +955,13 @@ private:
     void exit_mode(enum FlightMode mode);
     void check_long_failsafe();
     void check_test_loop();
+
+    void engineCheck();
+    void startEngineCheck();
+    void stopEngineCheck(); 
+    bool engineCheckActive = false;
+    uint32_t engineCheckStartTime = 0;
+
     void check_short_failsafe();
     void startup_INS_ground(void);
     void update_notify();
