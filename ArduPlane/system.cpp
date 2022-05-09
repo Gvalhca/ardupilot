@@ -745,27 +745,27 @@ void Plane::engineCheck(){
         }
         uint32_t timeDiff = (now - engineCheckStartTime) / 1000; // diff with now in sec
         gcs().send_text(MAV_SEVERITY_CRITICAL, "Time diff %f", (float) timeDiff);
-        if (timeDiff < 60 ){
+        if (timeDiff < 8 ){
             SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
             int trim = chan3->get_trim();
             gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 1. Set throttle - %f", (float) trim);
         }
-        if (60 < timeDiff && timeDiff < 120){
+        if (8 < timeDiff && timeDiff < 16){
             SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
             int max = chan3->get_output_max();
             gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 2. Set throttle - %f", (float) max);
         }
-        if (120 < timeDiff && timeDiff < 210){
+        if (16 < timeDiff && timeDiff < 36){
             SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
             int min = chan3->get_trim();
             int max = chan3->get_output_max();
 
-            float d = (now - engineCheckStartTime) / 1000 / 14;
+            float d = (now - engineCheckStartTime)/1.5 + 0.5;
             float value = sinf(d) * (max - min) / 2 + (min + max) / 2;
 
             gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 3. Set throttle - %f", (float) value);
         }
-        if (timeDiff > 210){
+        if (timeDiff > 35){
             stopEngineCheck();
         }
     }
