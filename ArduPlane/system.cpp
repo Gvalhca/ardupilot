@@ -771,6 +771,13 @@ void Plane::engineCheck(){
     }
 }
 
+void Plane::gliderCheck(){
+    const AP_BattMonitor &battery = AP::battery();
+    if (battery.voltage(1) < 3000){
+        target_altitude.amsl_cm = plane.relative_altitude-1;  // check sm or m
+    }
+}
+
 void Plane::check_long_failsafe()
 {
     uint32_t tnow = millis();

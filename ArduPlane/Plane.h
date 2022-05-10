@@ -962,6 +962,8 @@ private:
     bool engineCheckActive = false;
     uint32_t engineCheckStartTime = 0;
 
+    void gliderCheck();
+
     void check_short_failsafe();
     void startup_INS_ground(void);
     void update_notify();
