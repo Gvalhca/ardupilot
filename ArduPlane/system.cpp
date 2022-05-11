@@ -734,6 +734,8 @@ void Plane::startEngineCheck(){
 void Plane::stopEngineCheck(){
     engineCheckActive = false;
     engineCheckStartTime = 0;
+    SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
+    chan3->set_output_min(default_min_value);
     gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test stopped");
 }
 
