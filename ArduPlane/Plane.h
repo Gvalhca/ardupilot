@@ -961,7 +961,7 @@ private:
     void stopEngineCheck(); 
     bool engineCheckActive = false;
     uint32_t engineCheckStartTime = 0;
-
+    int default_min_value = 1100;
     void gliderCheck();
 
     void check_short_failsafe();
