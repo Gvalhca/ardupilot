@@ -370,8 +370,8 @@ public:
 
     //MAVLink Status Sending
     void send_mavlink_gps_raw(mavlink_channel_t chan);
-    float gps_raw_int_rate_hz =                0.5f;
-    uint32_t prev_gps_raw_int_time = 0;
+    // float gps_raw_int_rate_hz =                0.5f;
+    // uint32_t prev_gps_raw_int_time = 0;
 
     void send_mavlink_gps2_raw(mavlink_channel_t chan);
 

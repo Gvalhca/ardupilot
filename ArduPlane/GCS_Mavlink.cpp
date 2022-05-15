@@ -145,16 +145,16 @@ void Plane::send_fence_status(mavlink_channel_t chan) {
 #endif
 
 void Plane::send_extended_status1(mavlink_channel_t chan) {
-    uint32_t now = AP_HAL::millis();
-    if (prev_sys_status_time != 0) {
-        if (((now - prev_sys_status_time) < 1 * 1000 / sys_status_hz) || sys_status_hz < 0) {
-            return;
-        } else {
-            prev_sys_status_time = now;
-        }
-    } else {
-        prev_sys_status_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_sys_status_time != 0) {
+    //     if (((now - prev_sys_status_time) < 1 * 1000 / sys_status_hz) || sys_status_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_sys_status_time = now;
+    //     }
+    // } else {
+    //     prev_sys_status_time = now;
+    // }
 
     int16_t battery_current = -1;
     int8_t battery_remaining = -1;
@@ -180,53 +180,52 @@ void Plane::send_extended_status1(mavlink_channel_t chan) {
         0, 0, 0, 0);
 }
 
-void Plane::send_nav_controller_output(mavlink_channel_t chan)
-{
-    uint32_t now = AP_HAL::millis();
-        if (prev_nav_controller_output_time != 0){
-            if (((now - prev_nav_controller_output_time) < 1 * 1000 / nav_controller_output_rate_hz) || nav_controller_output_rate_hz < 0){
-                //return;
-            }
-            else{
-                prev_nav_controller_output_time = now;
-                mavlink_msg_nav_controller_output_send(
-                    chan,
-                    nav_roll_cd * 0.01f,
-                    nav_pitch_cd * 0.01f,
-                    nav_controller->nav_bearing_cd() * 0.01f,
-                    nav_controller->target_bearing_cd() * 0.01f,
-                    MIN(auto_state.wp_distance, UINT16_MAX),
-                    altitude_error_cm * 0.01f,
-                    airspeed_error * 100,
-                    nav_controller->crosstrack_error());
-            }
-        }
-        else{
-            prev_nav_controller_output_time = now;
-            mavlink_msg_nav_controller_output_send(
-            chan,
-            nav_roll_cd * 0.01f,
-            nav_pitch_cd * 0.01f,
-            nav_controller->nav_bearing_cd() * 0.01f,
-            nav_controller->target_bearing_cd() * 0.01f,
-            MIN(auto_state.wp_distance, UINT16_MAX),
-            altitude_error_cm * 0.01f,
-            airspeed_error * 100,
-            nav_controller->crosstrack_error());
-        }
+void Plane::send_nav_controller_output(mavlink_channel_t chan) {
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_nav_controller_output_time != 0){
+    //     if (((now - prev_nav_controller_output_time) < 1 * 1000 / nav_controller_output_rate_hz) || nav_controller_output_rate_hz < 0){
+    //         //return;
+    //     }
+    //     else{
+    // prev_nav_controller_output_time = now;
+    mavlink_msg_nav_controller_output_send(
+        chan,
+        nav_roll_cd * 0.01f,
+        nav_pitch_cd * 0.01f,
+        nav_controller->nav_bearing_cd() * 0.01f,
+        nav_controller->target_bearing_cd() * 0.01f,
+        MIN(auto_state.wp_distance, UINT16_MAX),
+        altitude_error_cm * 0.01f,
+        airspeed_error * 100,
+        nav_controller->crosstrack_error());
+    //     }
+    // }
+    // else{
+    //     prev_nav_controller_output_time = now;
+    //     mavlink_msg_nav_controller_output_send(
+    //     chan,
+    //     nav_roll_cd * 0.01f,
+    //     nav_pitch_cd * 0.01f,
+    //     nav_controller->nav_bearing_cd() * 0.01f,
+    //     nav_controller->target_bearing_cd() * 0.01f,
+    //     MIN(auto_state.wp_distance, UINT16_MAX),
+    //     altitude_error_cm * 0.01f,
+    //     airspeed_error * 100,
+    //     nav_controller->crosstrack_error());
+    // }
 }
 
 void GCS_MAVLINK_Plane::send_position_target_global_int() {
-    uint32_t now = AP_HAL::millis();
-    if (prev_position_target_global_int_time != 0) {
-        if (((now - prev_position_target_global_int_time) < 1 * 1000 / position_target_global_int_rate_hz) || position_target_global_int_rate_hz < 0) {
-            return;
-        } else {
-            prev_position_target_global_int_time = now;
-        }
-    } else {
-        prev_position_target_global_int_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_position_target_global_int_time != 0) {
+    //     if (((now - prev_position_target_global_int_time) < 1 * 1000 / position_target_global_int_rate_hz) || position_target_global_int_rate_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_position_target_global_int_time = now;
+    //     }
+    // } else {
+    //     prev_position_target_global_int_time = now;
+    // }
 
     if (plane.control_mode == MANUAL) {
         return;
@@ -329,16 +328,16 @@ void GCS_MAVLINK_Plane::send_simstate() const {
 }
 
 void Plane::send_wind(mavlink_channel_t chan) {
-    uint32_t now = AP_HAL::millis();
-    if (prev_wind_time != 0) {
-        if (((now - prev_wind_time) < 1 * 1000 / wind_hz) || wind_hz < 0) {
-            return;
-        } else {
-            prev_wind_time = now;
-        }
-    } else {
-        prev_wind_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_wind_time != 0) {
+    //     if (((now - prev_wind_time) < 1 * 1000 / wind_hz) || wind_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_wind_time = now;
+    //     }
+    // } else {
+    //     prev_wind_time = now;
+    // }
     Vector3f wind = ahrs.wind_estimate();
     mavlink_msg_wind_send(
         chan,
@@ -352,16 +351,16 @@ void Plane::send_wind(mavlink_channel_t chan) {
   send RPM packet
  */
 void NOINLINE Plane::send_rpm(mavlink_channel_t chan) {
-    uint32_t now = AP_HAL::millis();
-    if (prev_rpm_time != 0) {
-        if (((now - prev_rpm_time) < 1 * 1000 / rpm_rate_hz) || rpm_rate_hz < 0) {
-            return;
-        } else {
-            prev_rpm_time = now;
-        }
-    } else {
-        prev_rpm_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_rpm_time != 0) {
+    //     if (((now - prev_rpm_time) < 1 * 1000 / rpm_rate_hz) || rpm_rate_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_rpm_time = now;
+    //     }
+    // } else {
+    //     prev_rpm_time = now;
+    // }
 
     if (rpm_sensor.enabled(0) || rpm_sensor.enabled(1)) {
         mavlink_msg_rpm_send(
@@ -641,64 +640,90 @@ const AP_Param::GroupInfo GCS_MAVLINK::var_info[] = {
     AP_GROUPINFO("ADSB", 9, GCS_MAVLINK, streamRates[9], 5),
     AP_GROUPEND};
 
+// rate should be ~ 0.1 Hz
 static const ap_message STREAM_RAW_SENSORS_msgs[] = {
     MSG_RAW_IMU1,  // RAW_IMU, SCALED_IMU2, SCALED_IMU3
-    MSG_RAW_IMU2,  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
-    MSG_RAW_IMU3   // SENSOR_OFFSETS
+    // MSG_RAW_IMU2,  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
+    MSG_RAW_IMU3  // SENSOR_OFFSETS
 };
 static const ap_message STREAM_EXTENDED_STATUS_msgs[] = {
-    MSG_EXTENDED_STATUS1,  // SYS_STATUS, POWER_STATUS
-    MSG_EXTENDED_STATUS2,  // MEMINFO
+    // MSG_EXTENDED_STATUS1, // SYS_STATUS, POWER_STATUS
+    // MSG_EXTENDED_STATUS2, // MEMINFO
     MSG_CURRENT_WAYPOINT,
-    MSG_GPS_RAW,
+    // MSG_GPS_RAW,
     MSG_GPS_RTK,
     MSG_GPS2_RAW,
     MSG_GPS2_RTK,
-    MSG_NAV_CONTROLLER_OUTPUT,
+    // MSG_NAV_CONTROLLER_OUTPUT,
     MSG_FENCE_STATUS,
-    MSG_POSITION_TARGET_GLOBAL_INT,
+    // MSG_POSITION_TARGET_GLOBAL_INT,
 };
+
+// high rate ~ 2.0 Hz
 static const ap_message STREAM_POSITION_msgs[] = {
+    MSG_ATTITUDE,
     MSG_LOCATION,
-    MSG_LOCAL_POSITION};
+    MSG_LOCAL_POSITION,
+    MSG_RAW_IMU2,  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
+    MSG_VFR_HUD,
+    MSG_VIBRATION,
+};
+// rate should be ~ 0.5 Hz
 static const ap_message STREAM_RAW_CONTROLLER_msgs[] = {
     MSG_SERVO_OUT,
 };
+// rate should be ~ 0.5 Hz
 static const ap_message STREAM_RC_CHANNELS_msgs[] = {
     MSG_SERVO_OUTPUT_RAW,
-    MSG_RADIO_IN};
+    MSG_RADIO_IN
+};
+// ultra slow rate ~ 0.1 Hz
 static const ap_message STREAM_EXTRA1_msgs[] = {
-    MSG_ATTITUDE,
-    MSG_SIMSTATE,  // SIMSTATE, AHRS2
-    MSG_RPM,
+    // MSG_ATTITUDE,
+    MSG_AHRS,
+    MSG_SIMSTATE, // SIMSTATE, AHRS2
+    // MSG_RPM,
     MSG_AOA_SSA,
     MSG_PID_TUNING,
     MSG_LANDING,
     MSG_ESC_TELEMETRY,
-};
-static const ap_message STREAM_EXTRA2_msgs[] = {
-    MSG_VFR_HUD};
-static const ap_message STREAM_EXTRA3_msgs[] = {
-    MSG_AHRS,
-    MSG_HWSTATUS,
-    MSG_WIND,
-    MSG_RANGEFINDER,
+    MSG_EXTENDED_STATUS2, // MEMINFO
     MSG_SYSTEM_TIME,
+};
+// slow rate ~ 0.5 Hz
+static const ap_message STREAM_EXTRA2_msgs[] = {
+    // MSG_VFR_HUD,
+    MSG_BATTERY_STATUS,
+    MSG_WIND,
+};
+// medium rate ~1.0 Hz
+static const ap_message STREAM_EXTRA3_msgs[] = {
+    // MSG_AHRS,
+    MSG_HWSTATUS,
+    // MSG_WIND,
+    MSG_RANGEFINDER,
+    // MSG_SYSTEM_TIME,
 #if AP_TERRAIN_AVAILABLE
     MSG_TERRAIN,
 #endif
     MSG_BATTERY2,
-    MSG_BATTERY_STATUS,
+    // MSG_BATTERY_STATUS,
     MSG_MOUNT_STATUS,
     MSG_OPTICAL_FLOW,
     MSG_GIMBAL_REPORT,
     MSG_MAG_CAL_REPORT,
     MSG_MAG_CAL_PROGRESS,
     MSG_EKF_STATUS_REPORT,
-    MSG_VIBRATION,
+    // MSG_VIBRATION,
+    MSG_GPS_RAW,
+    MSG_NAV_CONTROLLER_OUTPUT,
+    MSG_POSITION_TARGET_GLOBAL_INT,
+    MSG_EXTENDED_STATUS1, // SYS_STATUS, POWER_STATUS
+    MSG_RPM,
 };
 static const ap_message STREAM_ADSB_msgs[] = {
-    MSG_ADSB_VEHICLE};
+    MSG_ADSB_VEHICLE
+};
 
 const struct GCS_MAVLINK::stream_entries GCS_MAVLINK::all_stream_entries[] = {
     MAV_STREAM_ENTRY(STREAM_RAW_SENSORS),

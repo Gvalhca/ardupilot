@@ -176,16 +176,16 @@ void GCS_MAVLINK::send_meminfo(void) {
 
 // report power supply status
 void GCS_MAVLINK::send_power_status(void) {
-    uint32_t now = AP_HAL::millis();
-    if (prev_power_status_time != 0) {
-        if (((now - prev_power_status_time) < 1 * 1000 / power_status_rate_hz) || power_status_rate_hz < 0) {
-            return;
-        } else {
-            prev_power_status_time = now;
-        }
-    } else {
-        prev_power_status_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_power_status_time != 0) {
+    //     if (((now - prev_power_status_time) < 1 * 1000 / power_status_rate_hz) || power_status_rate_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_power_status_time = now;
+    //     }
+    // } else {
+    //     prev_power_status_time = now;
+    // }
 
     mavlink_msg_power_status_send(chan,
                                   hal.analogin->board_voltage() * 1000,

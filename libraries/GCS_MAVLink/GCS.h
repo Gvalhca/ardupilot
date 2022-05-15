@@ -194,23 +194,23 @@ public:
     float ahrs_rate_hz =                       0.1f;
     float ahrs2_rate_hz =                      0.1f;
     float ahrs3_rate_hz =                      0.1f;
-    float attitude_rate_hz =                   1.5f;    
-    float battery2_rate_hz =                   0.5f;
+    float attitude_rate_hz =                   2.0f;    
+    float battery2_rate_hz =                   1.0f;
     float battery_status_rate_hz =             0.5f;
-    float global_position_int_rate_hz =        1.5f;
-    float hwstatus_rate_hz =                   0.5f;
-    float local_position_ned_rate_hz =         1.5f;
+    float global_position_int_rate_hz =        2.0f;
+    float hwstatus_rate_hz =                   1.0f;
+    float local_position_ned_rate_hz =         2.0f;
     float meminfo_rate_hz =                    0.1f;
-    float power_status_rate_hz =               0.5f;
+    float power_status_rate_hz =               1.0f;
     float raw_imu_rate_hz =                    0.1f;
     float rc_channels_rate_hz =                0.5f;
     float rc_channels_raw_rate_hz =            0.5f;
-    float scaled_pressure_hz =                 1.5f;
+    float scaled_pressure_hz =                 2.0f;
     float sensor_offsets_rate_hz =             0.1f;
-    float servo_output_raw_hz =                0.1f;
+    float servo_output_raw_hz =                0.5f;
     float system_time_hz =                     0.1f;
-    float vfr_hud_hz =                         1.5f;
-    float vibration_hz =                       1.5f;
+    float vfr_hud_hz =                         2.0f;
+    float vibration_hz =                       2.0f;
 
 
     bool send_distance_sensor() const;
