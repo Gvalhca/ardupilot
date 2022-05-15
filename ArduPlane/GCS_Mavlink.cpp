@@ -667,6 +667,7 @@ static const ap_message STREAM_POSITION_msgs[] = {
     MSG_RAW_IMU2,  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
     MSG_VFR_HUD,
     MSG_VIBRATION,
+    MSG_RPM,
 };
 // rate should be ~ 0.5 Hz
 static const ap_message STREAM_RAW_CONTROLLER_msgs[] = {
@@ -719,7 +720,7 @@ static const ap_message STREAM_EXTRA3_msgs[] = {
     MSG_NAV_CONTROLLER_OUTPUT,
     MSG_POSITION_TARGET_GLOBAL_INT,
     MSG_EXTENDED_STATUS1, // SYS_STATUS, POWER_STATUS
-    MSG_RPM,
+    // MSG_RPM,
 };
 static const ap_message STREAM_ADSB_msgs[] = {
     MSG_ADSB_VEHICLE

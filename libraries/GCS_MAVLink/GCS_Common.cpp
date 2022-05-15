@@ -1259,15 +1259,15 @@ void GCS_MAVLINK::send_scaled_pressure3() {
 
 void GCS_MAVLINK::send_scaled_pressure() {
     uint32_t now = AP_HAL::millis();
-    if (prev_scaled_pressure_time != 0) {
-        if (((now - prev_scaled_pressure_time) < 1 * 1000 / scaled_pressure_hz) || scaled_pressure_hz < 0) {
-            return;
-        } else {
-            prev_scaled_pressure_time = now;
-        }
-    } else {
-        prev_scaled_pressure_time = now;
-    }
+    // if (prev_scaled_pressure_time != 0) {
+    //     if (((now - prev_scaled_pressure_time) < 1 * 1000 / scaled_pressure_hz) || scaled_pressure_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_scaled_pressure_time = now;
+    //     }
+    // } else {
+    //     prev_scaled_pressure_time = now;
+    // }
 
     const AP_Baro &barometer = AP::baro();
     float pressure = barometer.get_pressure(0);
@@ -1883,16 +1883,16 @@ float GCS_MAVLINK::vfr_hud_climbrate() const {
 }
 
 void GCS_MAVLINK::send_vfr_hud() {
-    uint32_t now = AP_HAL::millis();
-    if (prev_vfr_hud_time != 0) {
-        if (((now - prev_vfr_hud_time) < 1 * 1000 / vfr_hud_hz) || vfr_hud_hz < 0) {
-            return;
-        } else {
-            prev_vfr_hud_time = now;
-        }
-    } else {
-        prev_vfr_hud_time = now;
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_vfr_hud_time != 0) {
+    //     if (((now - prev_vfr_hud_time) < 1 * 1000 / vfr_hud_hz) || vfr_hud_hz < 0) {
+    //         return;
+    //     } else {
+    //         prev_vfr_hud_time = now;
+    //     }
+    // } else {
+    //     prev_vfr_hud_time = now;
+    // }
     AP_AHRS &ahrs = AP::ahrs();
 
     // return values ignored; we send stale data
@@ -2881,7 +2881,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_long_packet(const mavlink_command_long_t 
 
         case MAV_CMD_DO_FLIGHTTERMINATION:
             result = handle_flight_termination(packet);
-            break;  
+            break;
 
         default:
             result = MAV_RESULT_UNSUPPORTED;
@@ -3022,38 +3022,38 @@ void GCS_MAVLINK::send_global_position_int() {
     Vector3f vel;
     ahrs.get_velocity_NED(vel);
 
-    uint32_t now = AP_HAL::millis();
-    if (prev_global_position_int_time != 0) {
-        if (((now - prev_global_position_int_time) < 1 * 1000 / global_position_int_rate_hz) || global_position_int_rate_hz < 0) {
-            // return;
-        } else {
-            prev_global_position_int_time = now;
-            mavlink_msg_global_position_int_send(
-                chan,
-                AP_HAL::millis(),
-                global_position_current_loc.lat,     // in 1E7 degrees
-                global_position_current_loc.lng,     // in 1E7 degrees
-                global_position_int_alt(),           // millimeters above ground/sea level
-                global_position_int_relative_alt(),  // millimeters above home
-                vel.x * 100,                         // X speed cm/s (+ve North)
-                vel.y * 100,                         // Y speed cm/s (+ve East)
-                vel.z * 100,                         // Z speed cm/s (+ve Down)
-                ahrs.yaw_sensor);                    // compass heading in 1/100 degree
-        }
-    } else {
-        prev_global_position_int_time = now;
-        mavlink_msg_global_position_int_send(
-            chan,
-            AP_HAL::millis(),
-            global_position_current_loc.lat,     // in 1E7 degrees
-            global_position_current_loc.lng,     // in 1E7 degrees
-            global_position_int_alt(),           // millimeters above ground/sea level
-            global_position_int_relative_alt(),  // millimeters above home
-            vel.x * 100,                         // X speed cm/s (+ve North)
-            vel.y * 100,                         // Y speed cm/s (+ve East)
-            vel.z * 100,                         // Z speed cm/s (+ve Down)
-            ahrs.yaw_sensor);                    // compass heading in 1/100 degree
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_global_position_int_time != 0) {
+    //     if (((now - prev_global_position_int_time) < 1 * 1000 / global_position_int_rate_hz) || global_position_int_rate_hz < 0) {
+    //         // return;
+    //     } else {
+    //         prev_global_position_int_time = now;
+    //         mavlink_msg_global_position_int_send(
+    //             chan,
+    //             AP_HAL::millis(),
+    //             global_position_current_loc.lat,     // in 1E7 degrees
+    //             global_position_current_loc.lng,     // in 1E7 degrees
+    //             global_position_int_alt(),           // millimeters above ground/sea level
+    //             global_position_int_relative_alt(),  // millimeters above home
+    //             vel.x * 100,                         // X speed cm/s (+ve North)
+    //             vel.y * 100,                         // Y speed cm/s (+ve East)
+    //             vel.z * 100,                         // Z speed cm/s (+ve Down)
+    //             ahrs.yaw_sensor);                    // compass heading in 1/100 degree
+    //     }
+    // } else {
+    //     prev_global_position_int_time = now;
+    mavlink_msg_global_position_int_send(
+        chan,
+        AP_HAL::millis(),
+        global_position_current_loc.lat,     // in 1E7 degrees
+        global_position_current_loc.lng,     // in 1E7 degrees
+        global_position_int_alt(),           // millimeters above ground/sea level
+        global_position_int_relative_alt(),  // millimeters above home
+        vel.x * 100,                         // X speed cm/s (+ve North)
+        vel.y * 100,                         // Y speed cm/s (+ve East)
+        vel.z * 100,                         // Z speed cm/s (+ve Down)
+        ahrs.yaw_sensor);                    // compass heading in 1/100 degree
+    // }
 }
 
 bool GCS_MAVLINK::try_send_message(const enum ap_message id) {
@@ -3067,21 +3067,21 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id) {
     switch (id) {
         case MSG_ATTITUDE:
             CHECK_PAYLOAD_SIZE(ATTITUDE);
-            now = AP_HAL::millis();
-            if (prev_attitude_time != 0) {
-                if (((now - prev_attitude_time) < 1 * 1000 / attitude_rate_hz) || attitude_rate_hz < 0) {
-                    // return;
-                    break;
-                } else {
-                    prev_attitude_time = now;
-                    send_attitude();
-                    break;
-                }
-            } else {
-                prev_attitude_time = now;
-                send_attitude();
-                break;
-            }
+            // now = AP_HAL::millis();
+            // if (prev_attitude_time != 0) {
+            //     if (((now - prev_attitude_time) < 1 * 1000 / attitude_rate_hz) || attitude_rate_hz < 0) {
+            //         // return;
+            //         break;
+            //     } else {
+            //         prev_attitude_time = now;
+            //         send_attitude();
+            //         break;
+            //     }
+            // } else {
+            //     prev_attitude_time = now;
+            send_attitude();
+            //     break;
+            // }
             break;
 
         case MSG_NEXT_PARAM:
@@ -3191,18 +3191,18 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id) {
 
         case MSG_LOCAL_POSITION:
             CHECK_PAYLOAD_SIZE(LOCAL_POSITION_NED);
-            now = AP_HAL::millis();
-            if (prev_local_position_ned_time != 0) {
-                if (((now - prev_local_position_ned_time) < 1 * 1000 / local_position_ned_rate_hz) || local_position_ned_rate_hz < 0) {
-                    // return;
-                } else {
-                    prev_local_position_ned_time = now;
-                    send_local_position();
-                }
-            } else {
-                prev_local_position_ned_time = now;
-                send_local_position();
-            }
+            // now = AP_HAL::millis();
+            // if (prev_local_position_ned_time != 0) {
+            //     if (((now - prev_local_position_ned_time) < 1 * 1000 / local_position_ned_rate_hz) || local_position_ned_rate_hz < 0) {
+            //         // return;
+            //     } else {
+            //         prev_local_position_ned_time = now;
+            //         send_local_position();
+            //     }
+            // } else {
+            //     prev_local_position_ned_time = now;
+            send_local_position();
+            // }
 
             break;
 
@@ -3255,21 +3255,21 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id) {
 
         case MSG_VIBRATION:
             CHECK_PAYLOAD_SIZE(VIBRATION);
-            now = AP_HAL::millis();
-            if (prev_vibration_time != 0) {
-                if (((now - prev_vibration_time) < 1 * 1000 / vibration_hz) || vibration_hz < 0) {
-                    // return;
-                    break;
-                } else {
-                    prev_vibration_time = now;
-                    send_vibration();
-                    break;
-                }
-            } else {
-                prev_vibration_time = now;
-                send_vibration();
-                break;
-            }
+            // now = AP_HAL::millis();
+            // if (prev_vibration_time != 0) {
+            //     if (((now - prev_vibration_time) < 1 * 1000 / vibration_hz) || vibration_hz < 0) {
+            //         // return;
+            //         break;
+            //     } else {
+            //         prev_vibration_time = now;
+            //         send_vibration();
+            //         break;
+            //     }
+            // } else {
+            //     prev_vibration_time = now;
+            send_vibration();
+            //     break;
+            // }
             break;
 
         case MSG_ESC_TELEMETRY: {
