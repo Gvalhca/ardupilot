@@ -1522,18 +1522,18 @@ void GCS_MAVLINK::send_battery2() {
             current = -1;
         }
 
-        uint32_t now = AP_HAL::millis();
-        if (prev_battery2_time != 0) {
-            if (((now - prev_battery2_time) < 1 * 1000 / battery2_rate_hz) || battery2_rate_hz < 0) {
-                // return;
-            } else {
-                prev_battery2_time = now;
-                mavlink_msg_battery2_send(chan, battery.voltage(1) * 1000, current);
-            }
-        } else {
-            prev_battery2_time = now;
-            mavlink_msg_battery2_send(chan, battery.voltage(1) * 1000, current);
-        }
+        // uint32_t now = AP_HAL::millis();
+        // if (prev_battery2_time != 0) {
+        //     if (((now - prev_battery2_time) < 1 * 1000 / battery2_rate_hz) || battery2_rate_hz < 0) {
+        //         // return;
+        //     } else {
+        //         prev_battery2_time = now;
+        //         mavlink_msg_battery2_send(chan, battery.voltage(1) * 1000, current);
+        //     }
+        // } else {
+        //     prev_battery2_time = now;
+        mavlink_msg_battery2_send(chan, battery.voltage(1) * 1000, current);
+        // }
     }
 }
 
@@ -2971,24 +2971,24 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id) {
 }
 
 void GCS_MAVLINK::send_hwstatus() {
-    uint32_t now = AP_HAL::millis();
-    if (prev_hwstatus_time != 0) {
-        if (((now - prev_hwstatus_time) < 1 * 1000 / hwstatus_rate_hz) || hwstatus_rate_hz < 0) {
-            // return;
-        } else {
-            prev_hwstatus_time = now;
-            mavlink_msg_hwstatus_send(
-                chan,
-                hal.analogin->board_voltage() * 1000,
-                0);
-        }
-    } else {
-        prev_hwstatus_time = now;
-        mavlink_msg_hwstatus_send(
-            chan,
-            hal.analogin->board_voltage() * 1000,
-            0);
-    }
+    // uint32_t now = AP_HAL::millis();
+    // if (prev_hwstatus_time != 0) {
+    //     if (((now - prev_hwstatus_time) < 1 * 1000 / hwstatus_rate_hz) || hwstatus_rate_hz < 0) {
+    //         // return;
+    //     } else {
+    //         prev_hwstatus_time = now;
+    //         mavlink_msg_hwstatus_send(
+    //             chan,
+    //             hal.analogin->board_voltage() * 1000,
+    //             0);
+    //     }
+    // } else {
+    //     prev_hwstatus_time = now;
+    mavlink_msg_hwstatus_send(
+        chan,
+        hal.analogin->board_voltage() * 1000,
+        0);
+    // }
 }
 
 void GCS_MAVLINK::send_attitude() const {

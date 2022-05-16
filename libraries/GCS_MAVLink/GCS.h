@@ -195,13 +195,13 @@ public:
     float ahrs2_rate_hz =                      0.1f;
     float ahrs3_rate_hz =                      0.1f;
     // float attitude_rate_hz =                   2.0f;    
-    float battery2_rate_hz =                   1.0f;
+    // float battery2_rate_hz =                   1.0f;
     float battery_status_rate_hz =             0.5f;
     // float global_position_int_rate_hz =        2.0f;
-    float hwstatus_rate_hz =                   1.0f;
+    // float hwstatus_rate_hz =                   1.0f;
     // float local_position_ned_rate_hz =         2.0f;
     float meminfo_rate_hz =                    0.1f;
-    float power_status_rate_hz =               1.0f;
+    // float power_status_rate_hz =               1.0f;
     float raw_imu_rate_hz =                    0.1f;
     float rc_channels_rate_hz =                0.5f;
     float rc_channels_raw_rate_hz =            0.5f;
