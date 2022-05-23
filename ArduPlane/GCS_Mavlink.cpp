@@ -667,7 +667,7 @@ static const ap_message STREAM_POSITION_msgs[] = {
     MSG_RAW_IMU2,  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
     MSG_VFR_HUD,
     MSG_VIBRATION,
-    MSG_RPM,
+    // MSG_RPM,
 };
 // rate should be ~ 0.5 Hz
 static const ap_message STREAM_RAW_CONTROLLER_msgs[] = {
@@ -694,21 +694,22 @@ static const ap_message STREAM_EXTRA1_msgs[] = {
 // slow rate ~ 0.5 Hz
 static const ap_message STREAM_EXTRA2_msgs[] = {
     // MSG_VFR_HUD,
-    MSG_BATTERY_STATUS,
-    MSG_WIND,
+    // MSG_BATTERY_STATUS,
+    // MSG_WIND,
+    MSG_RPM,
 };
 // medium rate ~1.0 Hz
 static const ap_message STREAM_EXTRA3_msgs[] = {
     // MSG_AHRS,
     MSG_HWSTATUS,
-    // MSG_WIND,
+    MSG_WIND,
     MSG_RANGEFINDER,
     // MSG_SYSTEM_TIME,
 #if AP_TERRAIN_AVAILABLE
     MSG_TERRAIN,
 #endif
     MSG_BATTERY2,
-    // MSG_BATTERY_STATUS,
+    MSG_BATTERY_STATUS,
     MSG_MOUNT_STATUS,
     MSG_OPTICAL_FLOW,
     MSG_GIMBAL_REPORT,
@@ -1155,6 +1156,12 @@ MAV_RESULT GCS_MAVLINK_Plane::handle_command_long_packet(const mavlink_command_l
             return MAV_RESULT_ACCEPTED;
         case 667:
             plane.stopEngineCheck();
+            return MAV_RESULT_ACCEPTED;
+        case 668:
+            set_mode(FLY_BY_WIRE_B);
+            plane.targetYaw = packet.param1;
+            plane.directFlightMode = true;
+            gcs().send_text(MAV_SEVERITY_CRITICAL, "Direct flight mode! target yaw - %f", (float) plane.targetYaw);
             return MAV_RESULT_ACCEPTED;
         default:
             return GCS_MAVLINK::handle_command_long_packet(packet);

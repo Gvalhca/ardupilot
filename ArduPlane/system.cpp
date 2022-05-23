@@ -728,7 +728,7 @@ void Plane::check_test_loop(){
 void Plane::startEngineCheck(){
     engineCheckActive = true;
     engineCheckStartTime = 0;
-    gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test started");
+    //gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test started");
 }
 
 void Plane::stopEngineCheck(){
@@ -736,7 +736,7 @@ void Plane::stopEngineCheck(){
     engineCheckStartTime = 0;
     SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
     chan3->set_output_min(default_min_value);
-    gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test stopped");
+    //gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test stopped");
 }
 
 void Plane::engineCheck(){
@@ -748,17 +748,17 @@ void Plane::engineCheck(){
             default_min_value = chan3->get_output_min();
         }
         uint32_t timeDiff = (now - engineCheckStartTime) / 1000; // diff with now in sec
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "Time diff %f", (float) timeDiff);
+        //gcs().send_text(MAV_SEVERITY_CRITICAL, "Time diff %f", (float) timeDiff);
         if (timeDiff < 5 ){   
             SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
             int max = chan3->get_output_max();
-            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 2. Set throttle - %f", (float) max);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 2. Set throttle - %f", (float) max);
         chan3->set_output_min(max);
         }
         if (5 <= timeDiff && timeDiff < 10){
             SRV_Channel *chan3 = SRV_Channels::srv_channel(CH_3);
             int trim = chan3->get_trim();
-            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 1. Set throttle - %f", (float) trim);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 1. Set throttle - %f", (float) trim);
             chan3->set_output_min(trim);
         }
         if (10 <= timeDiff && timeDiff < 25){
@@ -768,7 +768,7 @@ void Plane::engineCheck(){
             float d = (now - engineCheckStartTime) / 100 /12.5 + 15.8;
             float value =  (sinf(d) * (max - min) / 2 + (min + max) / 2);
             value = roundf(value);
-            gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 3. Set throttle - %f", (float) value);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Engine test: phase 3. Set throttle - %f", (float) value);
             chan3->set_output_min(value);
         }
         if (timeDiff > 25){
@@ -778,9 +778,34 @@ void Plane::engineCheck(){
 }
 
 void Plane::gliderCheck(){
-    const AP_BattMonitor &battery = AP::battery();
-    if (battery.voltage(1) < 3000){
-        target_altitude.amsl_cm = plane.relative_altitude-1;  // check sm or m
+    //if (rpm_sensor.get_rpm(0) < 1500 && plane.relative_altitude > 100){
+        //target_altitude.amsl_cm = plane.relative_altitude * 100 - 100;  // check sm or m
+    //}
+}
+
+void Plane::directFlight(){
+    if (directFlightMode){
+        if (control_mode ==FLY_BY_WIRE_B){
+            uint32_t now = AP_HAL::millis();
+
+            float res = plane.yawPid.compute(ahrs.yaw_sensor / 100, targetYaw, now-prevDirectFlightTime);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Direct flight pid value - %f", (float) res);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Direct flight current yaw value - %f", (float) ahrs.yaw_sensor / 100);
+            //gcs().send_text(MAV_SEVERITY_CRITICAL, "Direct flight target yaw value - %f", (float) targetYaw);
+            SRV_Channel *chan4 = SRV_Channels::srv_channel(CH_4);
+            int trim = chan4->get_trim();
+
+            uint32_t tnow = AP_HAL::millis();
+            RC_Channels::set_override(0, 1500, tnow);
+            RC_Channels::set_override(1, 1500, tnow);
+            RC_Channels::set_override(2, 1500, tnow);
+            RC_Channels::set_override(3, trim - res, tnow);
+            prevDirectFlightTime = now;
+
+        }
+        else{
+            directFlightMode = false;
+        }
     }
 }
 

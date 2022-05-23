@@ -67,6 +67,7 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(check_long_failsafe,     3,    400),
     SCHED_TASK(engineCheck,            20,    400),
     SCHED_TASK(gliderCheck,            10,    400),
+    SCHED_TASK(directFlight,            2,    400),
     SCHED_TASK(check_test_loop,         1,    400),
     SCHED_TASK(rpm_update,             10,    100),
     SCHED_TASK(airspeed_ratio_update,   1,    100),

@@ -136,6 +136,48 @@ protected:
     enum control_mode afs_mode(void);
 };
 
+class Pid{
+private:
+    float Kp = 4.0f;
+    float Ki = 0.2f;
+    float Kd = 1.0f;
+    float directValue = 0.0f;
+    float integral = 0.0f;
+    float preError = 0.0f;
+public:
+    float compute(float currentValue, float directValue, float dt){
+        float error = currentValue - directValue;
+        while (error > 180)
+        {
+            error -= 360;
+        }
+        while (error < -180)
+        {
+            error += 360;
+        }
+        //float outputDiff = 0;
+
+        float Pout = Kp * error;
+
+        integral += error * dt;                               //we have the same time with timer
+        //float Iout = Ki * integral;
+
+        float derevative = (error - preError) / dt;           //we have the same time with timer
+        float Dout = Kd * derevative;
+
+        float output = Pout /*+ Iout*/ + Dout;
+        output /= 2.5f;
+
+
+        if (output > 100) { output = 100; }
+        if (output < -100) { output = -100; }
+        preError = error;
+
+        return output;
+    }
+
+};
+
 /*
   main APM:Plane class
  */
@@ -158,6 +200,7 @@ public:
     void loop() override;
 
 private:
+    
     bool ourFailsafe = false;
     bool ourFailsafeWas = false;
     bool hadRTL = false;
@@ -963,6 +1006,11 @@ private:
     uint32_t engineCheckStartTime = 0;
     int default_min_value = 1100;
     void gliderCheck();
+    Pid yawPid;
+    void directFlight();
+    bool directFlightMode = false;
+    uint32_t prevDirectFlightTime = 0;
+    float targetYaw = 0.0f;
 
     void check_short_failsafe();
     void startup_INS_ground(void);
